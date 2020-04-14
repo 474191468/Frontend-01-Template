@@ -34,3 +34,9 @@
 **面试**
 1. 好的面试题(区分度，覆盖面，深度)
 2. 面试过程情况(打断，争论，难题)
+
+
+## day 02
+$和$$分别是document.querySelector() 和 document.querySelectorAll()的缩写  
+$0 选中当前元素  
+Array.prototype.map.call($0.querySelectorAll('code'), e => e.innerText).join('\n') 爬取网页上需要元素的内容
