@@ -44,3 +44,4 @@ article address:https://www.yuque.com/longlong-enq2g/kydme9/dy8cum
 $和$$分别是document.querySelector() 和 document.querySelectorAll()的缩写  
 $0 选中当前元素  
 Array.prototype.map.call($0.querySelectorAll('code'), e => e.innerText).join('\n') 爬取网页上需要元素的内容
+test email
