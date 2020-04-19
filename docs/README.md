@@ -1,5 +1,7 @@
 # 在极客时间前端训练营的学习
 
+## 启动文档
+docsify serve docs
 
 ## week01  
 ### homework:
@@ -8,3 +10,9 @@
    
 > 脑图地址：链接:https://pan.baidu.com/s/1BadQp6z7O8NSAW8THRxETw  密码:98tm  
 > 文章地址：https://www.yuque.com/longlong-enq2g/kydme9/dy8cum
+
+## week02
+### homework:
+1. 写一个正则表达式 匹配所有 Number 直接量
+2. 写一个 UTF-8 Encoding 的函数
+3. 写一个正则表达式，匹配所有的字符串直接量，单引号和双引号
