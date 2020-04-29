@@ -82,3 +82,46 @@ void function(){
 
 && // 可以当成if else来使用
 ```
+
+**homework**
+```js
+function covertStringToNumber(string, x) {
+    if(arguments.length < 2){
+        x = 10;
+    }
+    var charts = string.split('');
+    var number = 0;
+    var i = 0;
+    while(i < charts.length && chars[i] != '.') {
+        number = number * x;
+        number += chars[i].codePointAt(0) - '0'.codePointAt(0);
+        i++
+    }
+    if(chars[i] == '.') {
+        i++;
+    }
+    var fraction = 1;
+    while(i < chars.length){
+        fraction = fraction / x;
+        number += (charts.length[i].codePointAt(0) - '0'.codePointAt(0)) * fraction;
+        i++;
+    }
+    fraction = fraction / x;
+    return number;
+}
+
+function covertNumberToString(number, x) {
+    var integer = Math.floor(number);
+    var fraction = String(number).match(/\.\d+$/);
+    var string = '';
+    if (fraction) {
+      fraction = fraction[0].replace('.', '');
+    }
+    while(integer > 0)  {
+        string = String(integer % x) + string;
+        interger = Math.floor(integer / x);
+    }
+  
+    return number + (fraction ? fraction : '');
+}
+```
