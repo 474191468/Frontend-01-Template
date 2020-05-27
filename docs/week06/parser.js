@@ -39,7 +39,7 @@ function computeCSS(el) {
 		// selectors[0] 表body
 		var selectorParts = rule.selectors[0].split(' ').reverse();
 		// 如果当前元素不匹配第一个元素就干掉循环，进行下一步
-		if (!match(element, selectorParts[0])) {
+		if (!match(el, selectorParts[0])) {
 			continue;
 		}
 
@@ -59,8 +59,8 @@ function computeCSS(el) {
 			// 如果匹配到
 			console.log('Element', el, 'match rule', rule);
 			var sp = specificity(rule.selectors[0]);
-			var computedStyle = element.computedStyle;
-			for (var declaration of rule.declaration) {
+			var computedStyle = el.computedStyle;
+			for (var declaration of rule.declarations) {
 				if (!computedStyle[declaration.property]) {
 					computedStyle[declaration.property] = {};
 				}
