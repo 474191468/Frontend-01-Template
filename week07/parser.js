@@ -55,8 +55,7 @@ function computeCSS(el) {
             matched = true;
         }
         if (matched) {
-            // 如果匹配到
-            console.log('Element', el, 'match rule', rule);
+            // 如果匹配到生成computedStyle并且运用到dom上
             var sp = specificity(rule.selectors[0]);
             var computedStyle = el.computedStyle;
             for (var declaration of rule.declarations) {
@@ -64,6 +63,7 @@ function computeCSS(el) {
                     computedStyle[declaration.property] = {};
                 }
                 if (!computedStyle[declaration.property].specificity) {
+                    computedStyle[declaration.property].value = declaration.value;
                     computedStyle[declaration.property].specificity = sp;
                 } else if (compare(computedStyle[declaration.property], sp) < 0) {
                     computedStyle[declaration.property].value = declaration.value;
@@ -86,9 +86,18 @@ function match(element, selector) {
         }
     } else if (selector.charAt(0) == '.') {
         var attr = element.attributes.filter((attr) => attr.name === 'class')[0];
-        if (attr && attr.value === selector.replace('.', '')) {
-            return true;
+        // 复合选择器 值为 value:"class1 class2"
+        if (attr) {
+            const attrClassArray = attr.value.split(' ')
+            for (let attrClass of attrClassArray) {
+                if (attrClass === selector.replace(".", '')) {
+                    return true
+                }
+            }
         }
+        // if (attr && attr.value === selector.replace('.', '')) {
+        //     return true;
+        // }
     } else {
         if (element.tagName === selector) {
             return true;
@@ -98,6 +107,7 @@ function match(element, selector) {
 
 // css权重处理
 function specificity(selector) {
+    // div body .class #id  ==> [2,1,1,0] 2 表示2个tagName 1表示一个class  1表示一个id 0 
     var p = [0, 0, 0, 0];
     var selectorParts = selector.split(' ');
     for (var part of selectorParts) {
@@ -168,9 +178,9 @@ function emit(token) {
             if (top.tagName == 'style') {
                 addCSSRules(top.children[0].content);
             }
+            layout(top);
             stack.pop();
         }
-        layout(top);
         currentTextNode = null;
     } else if (token.type == 'text') {
         if (currentTextNode == null) {
