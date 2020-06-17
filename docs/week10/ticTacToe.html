@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TicTacToe</title>
+</head>
+<style>
+    .cell {
+        width: 100px;
+        height: 100px;
+        background-color: green;
+        display: inline-block;
+        border: solid 1px white;
+        vertical-align: middle;
+        line-height: 100px;
+        font-size: 50px;
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div id="board">
+
+    </div>
+</body>
+<script>
+    let pattern = [
+        [2, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+    ];
+    let count = 1;
+
+    function show() {
+        let board = document.getElementById("board");
+        // 清空之前的内容
+        board.innerHTML = "";
+        for (let i = 0; i < 3; i++) {
+            // 外层循环为y坐标
+            for (let j = 0; j < 3; j++) {
+                // 内层循环为x坐标
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.innerText = pattern[i][j] == 2 ? "❌" :
+                    pattern[i][j] == 1 ? "⭕️" : "";
+                cell.addEventListener("click", () => move(j, i));
+                board.appendChild(cell);
+            }
+            board.appendChild(document.createElement("br"))
+        }
+    }
+
+    function move(x, y) {
+        // 防止重新落子
+        if (pattern[y][x]) {
+            return;
+        }
+        pattern[y][x] = count;
+        if (check(pattern, count)) {
+            alert(count == 2 ? "❌ is winner" : "⭕️ is winner")
+        }
+
+        count = 3 - count;
+        show()
+        if (willWin(pattern, count)) {
+            console.log(count == 2 ? "❌ will win" : "⭕️ will win")
+        }
+    }
+
+    function check(pattern, count, x, y) {
+        // 对角线
+        {
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[j][j] !== count) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) {
+                    return true;
+                }
+            }
+        }
+        // 行是否相同
+        {
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[i][j] !== count) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) {
+                    return true;
+                }
+            }
+        }
+        // 列是否相同
+        {
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[j][i] !== count) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) {
+                    return true;
+                }
+            }
+        }
+        // 对角线
+        {
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[j][2 - j] !== count) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function clone(pattern) {
+        return JSON.parse(JSON.stringify(pattern));
+    }
+
+    function willWin(pattern, count) {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[i][j]) {
+                    continue;
+                }
+                let tmp = clone(pattern);
+                tmp[i][j] = count;
+                if (check(tmp, count)) {
+                    return [j, i]
+                }
+            }
+        }
+        return null;
+    }
+
+    function bestChoice(pattern, count) {
+        let point = willWin(pattern, count);
+        if (point) {
+            return {
+                point: point,
+                result: 1
+            }
+        }
+
+        let result = -1;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[i][j] !== 0) {
+                    continue
+                }
+                let tmp = clone(pattern);
+                tmp[i][j] = count;
+                let opp = bestChoice(tmp, 3 - count);
+                if (-opp.result > result) {
+                    point = [j, i]
+                    result = -opp.result;
+                }
+
+            }
+
+        }
+
+        return {
+            point: point,
+            result: point ? result : 0
+        }
+    }
+    show()
+</script>
+
+</html>
