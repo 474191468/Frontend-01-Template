@@ -1,0 +1,153 @@
+<style>
+    div {
+        background-color: grey;
+        display: inline-block;
+        margin: 30px;
+        width: 100px;
+        height: 100px;
+        border-radius: 50px;
+    }
+
+    .green.light {
+        background-color: green;
+    }
+
+    .yellow.light {
+        background-color: yellow;
+    }
+
+    .red.light {
+        background-color: red;
+    }
+</style>
+<div class="green"></div>
+<div class="yellow"></div>
+<div class="red"></div>
+<button id="next" onclick="happen()">next</button>
+
+<script>
+    // version 1
+    function green() {
+        var lights = document.getElementsByTagName('div');
+        for (let i = 0; i < 3; i++) {
+            lights[i].classList.remove('light');
+            document.getElementsByClassName('green')[0].classList.add('light')
+
+        }
+    }
+
+    function yellow() {
+        var lights = document.getElementsByTagName('div');
+        for (let i = 0; i < 3; i++) {
+            lights[i].classList.remove('light');
+            document.getElementsByClassName('yellow')[0].classList.add('light')
+
+        }
+    }
+
+    function red() {
+        var lights = document.getElementsByTagName('div');
+        for (let i = 0; i < 3; i++) {
+            lights[i].classList.remove('light');
+            document.getElementsByClassName('red')[0].classList.add('light')
+
+        }
+    }
+
+    function go() {
+        green();
+        setTimeout(yellow, 10000);
+        setTimeout(red, 1200);
+        setTimeout(green, 1700);
+    }
+</script>
+
+<script>
+    // version 2 promise
+    function sleep(t) {
+        return new Promise((reslove, reject) => {
+            setTimeout(reslove, t);
+        })
+    }
+
+    sleep(1000).then(() => {
+        yellow();
+        return sleep(2000);
+    }).then(() => {
+        red();
+        return sleep(500);
+    }).then(go);
+</script>
+<script>
+    // version 3 Async
+    async function go() {
+        green();
+        await sleep(10000);
+        yellow();
+        await sleep(2000);
+        red();
+        await sleep(5000)
+    }
+</script>
+<script>
+    // version 4 man controls
+    function happen(element, eventName) {
+        return new Promise((reslove, reject) => {
+            element.addEventListener(eventName, reslove, { once: true })
+        })
+    }
+    async function go() {
+        green();
+        await happen(document.getElementById('next'), 'click');
+        yellow();
+        await happen(document.getElementById('next'), 'click');
+        red();
+        await happen(document.getElementById('next'), 'click');
+    }
+</script>
+
+<script>
+    // version 5 generator
+    function* go() {
+        yield sleep(10000);
+        green();
+        yield sleep(2000);
+        yellow();
+        yield sleep(5000);
+        red();
+    }
+
+    function co(iterator) {
+        let { value, done } = iterator.next();
+        if (done) {
+            return
+        }
+        if (value instanceof Promise)
+            value.then(() => {
+                co(iterator)
+            })
+    }
+    co(go())
+</script>
+
+<script>
+    // version 5 best
+    function run(iterator) {
+        let { value, done } = iterator.next();
+        if (done) {
+            return
+        }
+        if (value instanceof Promise)
+            value.then(() => {
+                run(iterator)
+            })
+    }
+
+    function co(generator) {
+        return function() {
+            return run(generator());
+        }
+    }
+
+    go = co(go);
+</script>

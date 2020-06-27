@@ -1,0 +1,67 @@
+<script src="./findPath.js"></script>
+<style>
+    .cell {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: gray;
+        border-bottom: solid 1px white;
+        border-right: solid 1px white;
+        vertical-align: middle;
+    }
+
+    #container {
+        width: 701px;
+    }
+</style>
+<div id="container">
+
+</div>
+<button onclick="save()">save</button>
+
+<script>
+    //  var map = new Array(10001).join('').map(s => Number(s));
+    var map = localStorage.map ? JSON.parse(localStorage.map) : new Array(10000).fill(0);
+    var container = document.getElementById("container");
+    for (let y = 0; y < 100; y++) {
+        for (let x = 0; x < 100; x++) {
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
+            // 刷新后渲染刷新前的数据 保持存储显示的一致性
+            if (map[y * 100 + x] === 1) {
+                cell.style.backgroundColor = 'black';
+            }
+            cell.addEventListener('mousemove', () => {
+                if (mouse) {
+                    if (clear) {
+                        cell.style.backgroundColor = '';
+                        // 存储状态
+                        map[y * 100 + x] = 0;
+                    } else {
+                        cell.style.backgroundColor = 'black';
+                        map[y * 100 + x] = 1;
+                    }
+                }
+            })
+            container.appendChild(cell);
+        }
+    }
+    let mouse = false;
+    let clear = false;
+    // document 监听是因为可能从画布外面进入
+    document.addEventListener('mousedown', (e) => {
+        mouse = true;
+        clear = (e.which === 3)
+    })
+    document.addEventListener('mouseup', () => mouse = false)
+    // 删除鼠标右键菜单事件 方便右键擦除
+    document.addEventListener('contextmenu', e => e.preventDefault())
+
+    function save() {
+        localStorage.map = JSON.stringify(map);
+    }
+
+    //  function path(map, start, end) {
+
+    //  }
+</script>
