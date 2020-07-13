@@ -1,0 +1,127 @@
+<input type="text" id="bind" />
+
+<input type=range id="r" min=0 max=255 />
+<input type=range id="g" min=0 max=255 />
+<input type=range id="b" min=0 max=255 />
+
+
+<div id="bg" style="width: 100px;height: 100px"></div>
+
+<div id="text">hello {{name}}</div>
+<script>
+    let handlers = new Map();
+
+    let reactivities = new Map();
+
+    let usedReactivities = [];
+
+
+    let object = {
+        a: { x: 1 },
+        b: 2
+    }
+
+    function reactive(obj) {
+        // 单例模式 防止返回的不是同一个proxy对象
+        if (reactivities.has(obj)) {
+            return reactivities.get(obj)
+        }
+
+        let proxy = new Proxy(obj, {
+            get(obj, prop) {
+                usedReactivities.push([obj, prop]);
+                // 递归调用，防止深层对象 proxy失效
+                if (typeof obj[prop] === 'object') {
+                    return reactive(obj[prop]);
+                }
+                return obj[prop];
+            },
+            set(obj, prop, val) {
+                obj[prop] = val;
+                if (handlers.get(obj)) {
+                    if (handlers.get(obj).get(prop)) {
+                        for (let handler of handlers.get(obj).get(prop)) {
+                            handler();
+                        }
+                    }
+                }
+                return obj[prop];
+            }
+        })
+
+        reactivities.set(obj, proxy);
+        return proxy
+    }
+
+    function effect(handler) {
+        usedReactivities = [];
+        handler();
+        // console.log(usedReactivities);
+        for (let usedReactivity of usedReactivities) {
+            let [obj, prop] = usedReactivity;
+            // console.log([obj,prop]);
+            if (!handlers.has(obj)) {
+                handlers.set(obj, new Map())
+            }
+
+            if (!handlers.get(obj).has(prop)) {
+                handlers.get(obj).set(prop, []);
+            }
+
+            handlers.get(obj).get(prop).push(handler);
+        }
+    }
+
+    let dummy;
+
+    let proxy = reactive(object);
+
+    effect(() => dummy = proxy.a);
+
+    console.log(dummy);
+    proxy.a.x = 2;
+    console.log(dummy);
+
+    // let v12,v1,v2;
+    // let p1 = reactive({a:1});
+    // let p2 = reactive({a:2});
+
+    // effect(()=>v12 = p1.a + p2.a);
+    // effect(()=>v1 = p1.a);
+    // effect(()=>v2 = p2.a);
+
+    // 数据双向绑定
+    let bind = reactive({ r: 100 });
+    effect(() => { document.getElementById('bind').value = bind.r });
+    document.getElementById('bind').addEventListener('input', event => {
+        bind.r = event.target.value;
+    });
+
+
+    let p = reactive({ r: 100, g: 100, b: 100 });
+    effect(() => { document.getElementById('r').value = p.r });
+    effect(() => { document.getElementById('g').value = p.g });
+    effect(() => { document.getElementById('b').value = p.b });
+
+    document.getElementById('r').addEventListener('input', event => {
+        p.r = event.target.value;
+    })
+    document.getElementById('g').addEventListener('input', event => {
+        p.g = event.target.value;
+    })
+    document.getElementById('b').addEventListener('input', event => {
+        p.b = event.target.value;
+    })
+    effect(() => { document.getElementById("bg").style.background = `rgb(${p.r},${p.g},${p.b})` });
+
+
+    // range 的双向绑定实现
+    let range = document.createRange();
+    range.setStart(document.getElementById("text").childNodes[0], 6);
+    range.setEnd(document.getElementById("text").childNodes[0], 14);
+    let data = reactive({ text: "world" })
+    effect(() => {
+        range.extractContents();
+        range.insertNode(document.createTextNode(data.text));
+    })
+</script>
