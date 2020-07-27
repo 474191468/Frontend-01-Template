@@ -1,76 +1,88 @@
-function create(Cls, attrbutes, ...children) {
-    let o;
-    if(typeof Cls === "string") {
-        o = new Wrapper(Cls);
-        return ;
-    } else {
-        o = new Cls({
-            timer:""
-        });
-    }
-        
-        for (let name in attrbutes) {
-            o[name] = attrbutes[name];
-            o.setAttribute(name, attrbutes[name]);
-        }
-        
-        for (let child of children) {
-            if(typeof child === "string") {
-                child = new Text(child);
-            }
-            o.children.push(child);
-        }
+import {Wrapper,Text,create} from "./createElement"
 
-    return o;
-}
 
-class Text{
-    constructor(text) {
-        this.root = document.createTextNode(text);
-    }
-
-    moutTo(parent) {
-        parent.appendChild(this.root);
-    }
-}
-
-// 处理小写字符
-class Wrapper {
-    constructor(type) {
+class Carousel {
+    constructor(config) {
         this.children = [];
-        this.root = document.createElement(type);
-    }
-    // property
-    set class(v) {
-        console.log("Parent::class", v);
-    }
-    set id(v) {
-        console.log("Parent::id", v);
+        this.root = document.createElement("div");
     }
     // attribute
     setAttribute(name, value) {
-        this.root.setAttribute(name, value);
+        this[name] = value;
+        // this.root.setAttribute(name, value);
         // console.log(name, value)
     }
 
-    moutTo(parent) {
-        parent.appendChild(this.root);
-        for(let child of this.children) {
-            child.moutTo(this.root);
+    render() {
+        let children = this.data.map(url => {
+            let element = <img src={url}/>;
+            element.addEventListener("dragstart", e => e.preventDefault());
+            return element;
+        })
+        let root = <div class="carousel">
+                    {children}
+                </div>;
+        let position = 0;
+        let nextPic = () => {
+            let nextPosition = (position + 1) % this.data.length;
+            let current = children[position];
+            let next = children[nextPosition];
+
+            current.style.transition = "ease 0s";
+            next.style.transition = "ease 0s";
+
+
+            current.style.transform = `translateX(${-100 * position}%)`;
+            next.style.transform = `translateX(${100 -100 * nextPosition}%)`;
+
+            // settimeout 改成requestAnimationFrame 需要嵌套两层 
+            // 第一层是上面设置的css生效，第二层是下一帧生效
+            // requestAnimationFrame(() => {
+            //     requestAnimationFrame(() => {
+            //         // 使用css rule 控制
+            //         current.style.transition = "";
+            //         next.style.transition = "";
+
+            //         current.style.transform = `translateX(${-100 -100 * position}%)`;
+            //         next.style.transform = `translateX(${-100 * nextPosition}%)`;
+
+            //         // 自动循环 取余
+            //         position = nextPosition;
+            //     })
+            // })
+            // 16 毫秒代表一帧动画
+            setTimeout(() => {
+
+                current.style.transition = "";
+                next.style.transition = "";
+
+                current.style.transform = `translateX(${-100 -100 * position}%)`;
+                next.style.transform = `translateX(${-100 * nextPosition}%)`;
+
+                // 自动循环 取余
+                position = nextPosition;
+            },16)
+            setTimeout(nextPic, 3000);
         }
+        setTimeout(nextPic, 3000);
+
+        return root;
+    }
+
+    moutTo(parent) {
+        this.render().moutTo(parent);
     }
 
     appendChild(child) {
-        // this.root.appendChild(child);
         this.children.push(child);
-        // console.log("Parent::appendChild", child)
     }
 }
+
 
 class MyComponent {
     constructor(config) {
         this.children = [];
-        this.root = document.createElement("div");
+        // this.root = document.createElement("div");
     }
     // property
     set class(v) {
@@ -86,24 +98,17 @@ class MyComponent {
     }
 
     render() {
-        
         return <acticle>
-            <header>
-                I'm a header
-            </header>
+            <header>I'm a header</header>
                 {this.slot}
-            <footer>
-                I'm a footer
-            </footer>
+            <footer>I'm a footer</footer>
         </acticle>
     }
 
     moutTo(parent) {
-        this.slot = document.createElement("div");
-      
+        this.slot = <div></div>
         // parent.appendChild(this.root);
         for(let child of this.children) {
-            console.log(child);
             // child.moutTo(this.slot);
             // debugger;
             this.slot.appendChild(child);
@@ -112,59 +117,21 @@ class MyComponent {
     }
 
     appendChild(child) {
-        // this.slot.appendChild(child);
         this.children.push(child);
-        // this.root.appendChild(child);
-        // console.log("Parent::appendChild", child)
     }
 }
-// class Child {
-//     constructor(config) {
-//         this.children = [];
-//         this.root = document.createElement("div");
-//     }
 
-//     setAttribute(name, value) {
-//         this.root.setAttribute(name, value);
-//         // console.log(name, value)
-//     }
+// let component = <MyComponent>
+//        <div>text text text</div>
+//     </MyComponent>
 
-//     moutTo(parent) {
-//         parent.appendChild(this.root);
-//     }
+let component = <Carousel data={
+    [ "https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg",
+    "https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg",
+    "https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg",
+    "https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg",]
+}></Carousel> ;
 
-//     appendChild(child) {
-//         child.moutTo(this.root);
-//         // this.root.appendChild(child);
-//         // console.log("Parent::appendChild", child)
-//     }
-// }
-// let component = <Div id="a" class="b"> 
-//         <Div></Div>
-//         <Div></Div>
-//         <Div></Div>
-//     </Div> ;
 
-// let component = <Div id="a" class="b"> 
-// text
-// </Div> ;
-
-let component = <MyComponent> 
-       <div>text text text</div>
-    </MyComponent> ;
-
-// component.id = "c";
 component.moutTo(document.body);
     // jsx 构建顺序，先子后父
-
-// var component = create(Parent, {
-//     id: "a",
-//     "class": "b"
-//   }, 
-// create(Child, null), 
-// create(Child, null), 
-// create(Child, null));
-
-console.log(component)
-
-{ /* component.setAttrbute('id', a); */ }
