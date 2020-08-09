@@ -1,3 +1,4 @@
 .DS_Store
 .idea
 docs/week07/node_modules/
+node_modules
