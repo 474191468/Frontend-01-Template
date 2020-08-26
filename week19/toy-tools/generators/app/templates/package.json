@@ -1,0 +1,13 @@
+{
+    "name": "temalpe",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "author": "zyl",
+    "scripts": {
+      "start": "webpack-dev-server",
+      "build": "webpack",
+      "test": "mocha --require @babel/register",
+      "coverage": "nyc mocha"
+    }
+  }
