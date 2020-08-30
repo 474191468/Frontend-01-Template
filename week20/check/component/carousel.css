@@ -1,0 +1,23 @@
+.carousel {
+    width: 500px;
+    height: 300px;
+    white-space: nowrap;
+    outline: solid 1px blue;
+    overflow: hidden;
+}
+
+.carousel>img {
+    width: 500px;
+    height: 300px;
+    display: inline-block;
+    /* transition: transform ease 1s; */
+}
+
+.panel{
+    width: 400px;
+    height: 400px;
+}
+
+* {
+    background: lightblue;
+}
